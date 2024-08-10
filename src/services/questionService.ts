@@ -23,12 +23,16 @@ export class QuestionService {
         return await questionModel.findById(id);
     }
 
-    async getAll(projectId: string, isClosed: boolean) {
-        //TODO: 1. implement pagination
+    async getAll(projectId: string, isClosed: boolean, skipCount: number) {
+        const limit = 10;
+        const skip = skipCount;
+        const result = limit * skip;
 
         return await questionModel
             .find({ projectId, isClosed })
-            .sort({ createdAt: -1 });
+            .sort({ createdAt: -1 })
+            .skip(result)
+            .limit(limit);
     }
 
     async close(id: string, para: string) {
@@ -44,11 +48,11 @@ export class QuestionService {
         );
     }
 
-    async search(searchTerm: string, id: string) {
+    async search(searchTerm: string, projectId: string) {
         //TODO: 1. populate user data
 
         return await questionModel.find({
-            _id: id,
+            projectId: projectId,
             title: { $regex: searchTerm, $options: "i" },
         });
     }

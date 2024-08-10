@@ -28,6 +28,7 @@ describe("POST /question/all", () => {
             const data = {
                 projectId: "651d94b37c81f740f30892de",
                 isClosed: false,
+                skipCount: 0,
             };
 
             await questionModel.create({
@@ -60,6 +61,7 @@ describe("POST /question/all", () => {
             const data = {
                 projectId: "651d94b37c81f740f30892de",
                 isClosed: false,
+                skipCount: 0,
             };
 
             await questionModel.create({

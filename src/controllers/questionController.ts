@@ -64,9 +64,13 @@ export class QuestionClass {
     };
 
     getAll = async (req: Request, res: Response) => {
-        const { projectId, isClosed } = req.body;
+        const { projectId, isClosed, skipCount } = req.body;
 
-        const data = await this.questionService.getAll(projectId, isClosed);
+        const data = await this.questionService.getAll(
+            projectId,
+            isClosed,
+            skipCount,
+        );
 
         res.status(200).json({ data, message: "", success: true });
     };
@@ -88,9 +92,9 @@ export class QuestionClass {
     };
 
     search = async (req: Request, res: Response) => {
-        const { searchTerm, id } = req.body;
+        const { searchTerm, projectId } = req.body;
 
-        const data = await this.questionService.search(searchTerm, id);
+        const data = await this.questionService.search(searchTerm, projectId);
 
         res.status(200).json({
             data: data,

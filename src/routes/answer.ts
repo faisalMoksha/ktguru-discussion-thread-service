@@ -10,6 +10,9 @@ const router = express.Router();
 const answerService = new AnswerService();
 const answerController = new AnswerController(answerService);
 
+/**
+ * give answer endpoint
+ */
 router.post(
     "/",
     authenticate,
@@ -17,6 +20,9 @@ router.post(
     asyncWrapper(answerController.create),
 );
 
+/**
+ * give comment endpoint
+ */
 router.post(
     "/comment",
     authenticate,

@@ -14,6 +14,9 @@ const activityController = new ActivityController(
     answerService,
 );
 
+/**
+ * get activity endpoint
+ */
 router.get("/:projectId/:skipCount", asyncWrapper(activityController.get));
 
 export default router;

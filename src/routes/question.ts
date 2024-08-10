@@ -12,6 +12,9 @@ const questionService = new QuestionService();
 const answerService = new AnswerService();
 const questionClass = new QuestionClass(questionService, answerService);
 
+/**
+ * ask question endpoint
+ */
 router.post(
     "/",
     authenticate,
@@ -19,12 +22,24 @@ router.post(
     asyncWrapper(questionClass.create),
 );
 
+/**
+ * get question and answers endpoint
+ */
 router.get("/:id", authenticate, asyncWrapper(questionClass.get));
 
+/**
+ * get all questions endpoint
+ */
 router.post("/all", authenticate, asyncWrapper(questionClass.getAll));
 
+/**
+ * closed questions endpoint
+ */
 router.patch("/", authenticate, asyncWrapper(questionClass.close));
 
-router.patch("/search", authenticate, asyncWrapper(questionClass.search));
+/**
+ * search questions endpoint
+ */
+router.post("/search", authenticate, asyncWrapper(questionClass.search));
 
 export default router;
