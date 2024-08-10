@@ -3,6 +3,7 @@ import { Request as AuthRequest } from "express-jwt";
 import createHttpError from "http-errors";
 import { QuestionService } from "../services/questionService";
 import { AnswerService } from "../services/answerService";
+import { validationResult } from "express-validator";
 
 export class QuestionClass {
     constructor(
@@ -17,6 +18,11 @@ export class QuestionClass {
         //TODO:4  Populate users data
 
         const { title, description, projectId } = req.body;
+
+        const result = validationResult(req);
+        if (!result.isEmpty()) {
+            return res.status(400).json({ errors: result.array() });
+        }
 
         try {
             if (!req.auth || !req.auth.sub) {

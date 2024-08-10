@@ -2,6 +2,7 @@ import { Response, NextFunction } from "express";
 import { Request as AuthRequest } from "express-jwt";
 import { AnswerService } from "../services/answerService";
 import createHttpError from "http-errors";
+import { validationResult } from "express-validator";
 
 export class AnswerController {
     constructor(private answerService: AnswerService) {}
@@ -14,6 +15,11 @@ export class AnswerController {
         //TODO:5  handle token if available
 
         const { answer, projectId, questionId } = req.body;
+
+        const result = validationResult(req);
+        if (!result.isEmpty()) {
+            return res.status(400).json({ errors: result.array() });
+        }
 
         try {
             if (!req.auth || !req.auth.sub) {
