@@ -14,7 +14,7 @@ export class QuestionService {
             description,
             projectId,
             userId,
-            file,
+            ...(file && { file: file }),
             isActive: true,
         });
     }
@@ -35,12 +35,13 @@ export class QuestionService {
             .limit(limit);
     }
 
-    async close(id: string, para: string) {
+    async close(id: string, para: string, fileName: string | null) {
         return await questionModel.findByIdAndUpdate(
             { _id: id },
             {
                 summary: {
                     para,
+                    ...(fileName && { file: fileName }),
                 },
                 isClosed: true,
             },

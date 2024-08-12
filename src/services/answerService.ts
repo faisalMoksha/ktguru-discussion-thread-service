@@ -2,13 +2,20 @@ import answerModel from "../models/answerModel";
 import { RequestAnswer } from "../types";
 
 export class AnswerService {
-    async create({ answer, projectId, questionId, userId }: RequestAnswer) {
+    async create({
+        answer,
+        projectId,
+        questionId,
+        userId,
+        file,
+    }: RequestAnswer) {
         return await answerModel.create({
             answer,
             questionId: questionId,
             userId: userId,
             projectId: projectId,
             isActive: true,
+            ...(file && { file: file }),
         });
     }
 

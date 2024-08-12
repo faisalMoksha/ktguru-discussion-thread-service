@@ -1,18 +1,23 @@
 import { Response, NextFunction } from "express";
 import { Request as AuthRequest } from "express-jwt";
-import { AnswerService } from "../services/answerService";
-import createHttpError from "http-errors";
+import { v4 as uuidv4 } from "uuid";
+import { UploadedFile } from "express-fileupload";
 import { validationResult } from "express-validator";
+import createHttpError from "http-errors";
+import { AnswerService } from "../services/answerService";
+import { FileStorage } from "../types";
 
 export class AnswerController {
-    constructor(private answerService: AnswerService) {}
+    constructor(
+        private answerService: AnswerService,
+        private storage: FileStorage,
+    ) {}
 
     create = async (req: AuthRequest, res: Response, next: NextFunction) => {
-        //TODO:1. Implement file upload functionality
+        //TODO:1. handle token if available
         //TODO:2. Implement firebase notification functionality
         //TODO:3  Implement send mail functionality to mentionUsers
         //TODO:4  Populate users data
-        //TODO:5  handle token if available
 
         const { answer, projectId, questionId } = req.body;
 
@@ -30,14 +35,31 @@ export class AnswerController {
 
             const userId = req.auth.sub;
 
+            const file = req.files ? (req.files.file as UploadedFile) : null;
+
+            let fileName = null;
+            if (file) {
+                fileName = uuidv4();
+
+                await this.storage.upload({
+                    filename: fileName,
+                    fileData: file.data.buffer,
+                });
+            }
+
             const data = await this.answerService.create({
                 answer,
                 projectId,
                 questionId,
                 userId,
+                file: fileName,
             });
 
-            res.status(201).json(data);
+            res.status(201).json({
+                data: data,
+                message: "",
+                success: true,
+            });
         } catch (error) {
             return next(error);
         }

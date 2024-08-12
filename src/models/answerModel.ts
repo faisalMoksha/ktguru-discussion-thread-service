@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { Answer } from "../types";
+import { Config } from "../config";
 
 const answerSchema = new mongoose.Schema<Answer>(
     {
@@ -23,6 +24,11 @@ const answerSchema = new mongoose.Schema<Answer>(
         },
         file: {
             type: String,
+            get: (file: string) => {
+                if (file) {
+                    return `https://${Config.S3_BUCKET}.s3.${Config.S3_REGION}.amazonaws.com/${file}`;
+                }
+            },
         },
         comments: [
             {
@@ -42,7 +48,7 @@ const answerSchema = new mongoose.Schema<Answer>(
             },
         ],
     },
-    { timestamps: true },
+    { timestamps: true, toJSON: { getters: true } },
 );
 
 export default mongoose.model<Answer>("Answer", answerSchema);

@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { Question } from "../types";
+import { Config } from "../config";
 
 const questionSchema = new mongoose.Schema<Question>(
     {
@@ -26,13 +27,25 @@ const questionSchema = new mongoose.Schema<Question>(
         },
         file: {
             type: String,
+            get: (file: string) => {
+                if (file) {
+                    return `https://${Config.S3_BUCKET}.s3.${Config.S3_REGION}.amazonaws.com/${file}`;
+                }
+            },
         },
         summary: {
             para: String,
-            file: String,
+            file: {
+                type: String,
+                get: (file: string) => {
+                    if (file) {
+                        return `https://${Config.S3_BUCKET}.s3.${Config.S3_REGION}.amazonaws.com/${file}`;
+                    }
+                },
+            },
         },
     },
-    { timestamps: true },
+    { timestamps: true, toJSON: { getters: true } },
 );
 
 export default mongoose.model<Question>("Question", questionSchema);

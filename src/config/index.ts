@@ -14,6 +14,10 @@ const {
     BACKEND_URL,
     JWKS_URI,
     USER_SERVICE_URI,
+    S3_SECRET_KEY,
+    S3_ACCESS_KEY,
+    S3_REGION,
+    S3_BUCKET,
 } = process.env;
 
 export const Config = {
@@ -25,4 +29,8 @@ export const Config = {
     BACKEND_URL,
     JWKS_URI,
     USER_SERVICE_URI,
+    S3_SECRET_KEY,
+    S3_ACCESS_KEY,
+    S3_REGION,
+    S3_BUCKET,
 };

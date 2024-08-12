@@ -1,21 +1,24 @@
 import { Request, Response, NextFunction } from "express";
 import { Request as AuthRequest } from "express-jwt";
 import createHttpError from "http-errors";
+import { v4 as uuidv4 } from "uuid";
+import { UploadedFile } from "express-fileupload";
 import { QuestionService } from "../services/questionService";
 import { AnswerService } from "../services/answerService";
 import { validationResult } from "express-validator";
+import { FileStorage } from "../types";
 
 export class QuestionClass {
     constructor(
         private questionService: QuestionService,
         private answerService: AnswerService,
+        private storage: FileStorage,
     ) {}
 
     create = async (req: AuthRequest, res: Response, next: NextFunction) => {
-        //TODO:1. Implement file upload functionality
+        //TODO:1. Populate users data
         //TODO:2. Implement firebase notification functionality
         //TODO:3  Implement send mail functionality to mentionUsers
-        //TODO:4  Populate users data
 
         const { title, description, projectId } = req.body;
 
@@ -36,14 +39,31 @@ export class QuestionClass {
 
             const userId = req.auth.sub;
 
+            const file = req.files ? (req.files.file as UploadedFile) : null;
+
+            let fileName = null;
+            if (file) {
+                fileName = uuidv4();
+
+                await this.storage.upload({
+                    filename: fileName,
+                    fileData: file.data.buffer,
+                });
+            }
+
             const data = await this.questionService.create({
                 title,
                 description,
                 projectId,
                 userId,
+                file: fileName,
             });
 
-            res.status(201).json({ data, message: "", success: true });
+            res.status(201).json({
+                data: data,
+                message: "",
+                success: true,
+            });
         } catch (error) {
             return next(error);
         }
@@ -72,15 +92,25 @@ export class QuestionClass {
             skipCount,
         );
 
-        res.status(200).json({ data, message: "", success: true });
+        res.status(200).json({ data: data, message: "", success: true });
     };
 
     close = async (req: Request, res: Response) => {
-        //TODO: 1. implement file upload functionality
-
         const { para, id } = req.body;
 
-        const question = await this.questionService.close(id, para);
+        const file = req.files ? (req.files.file as UploadedFile) : null;
+
+        let fileName = null;
+        if (file) {
+            fileName = uuidv4();
+
+            await this.storage.upload({
+                filename: fileName,
+                fileData: file.data.buffer,
+            });
+        }
+
+        const question = await this.questionService.close(id, para, fileName);
 
         const answer = await this.answerService.get(id);
 
