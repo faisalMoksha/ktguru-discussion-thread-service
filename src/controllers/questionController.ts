@@ -39,10 +39,10 @@ export class QuestionClass {
 
             const userId = req.auth.sub;
 
-            const file = req.files ? (req.files.file as UploadedFile) : null;
-
             let fileName = null;
-            if (file) {
+            if (req.files) {
+                const file = req.files.file as UploadedFile;
+
                 fileName = uuidv4();
 
                 await this.storage.upload({
@@ -98,10 +98,10 @@ export class QuestionClass {
     close = async (req: Request, res: Response) => {
         const { para, id } = req.body;
 
-        const file = req.files ? (req.files.file as UploadedFile) : null;
-
         let fileName = null;
-        if (file) {
+        if (req.files) {
+            const file = req.files.file as UploadedFile;
+
             fileName = uuidv4();
 
             await this.storage.upload({
