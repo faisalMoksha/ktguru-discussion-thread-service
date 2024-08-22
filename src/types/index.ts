@@ -74,3 +74,15 @@ export interface FileStorage {
     delete(filename: string): void;
     getObjectUri(filename: string): string;
 }
+
+export interface UserCache {
+    userId: mongoose.Types.ObjectId;
+    firstName: string;
+    lastName: string;
+    avatar: string;
+}
+
+export interface MessagePayload {
+    event_type: string;
+    data: UserCache;
+}

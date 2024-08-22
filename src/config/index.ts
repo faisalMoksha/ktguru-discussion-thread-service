@@ -18,6 +18,7 @@ const {
     S3_ACCESS_KEY,
     S3_REGION,
     S3_BUCKET,
+    KAFKA_BROKER,
 } = process.env;
 
 export const Config = {
@@ -33,4 +34,5 @@ export const Config = {
     S3_ACCESS_KEY,
     S3_REGION,
     S3_BUCKET,
+    KAFKA_BROKER,
 };

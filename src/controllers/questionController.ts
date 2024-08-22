@@ -16,7 +16,7 @@ export class QuestionClass {
     ) {}
 
     create = async (req: AuthRequest, res: Response, next: NextFunction) => {
-        //TODO:1. Populate users data
+        //TODO:1. handle subsection id for questions and answers
         //TODO:2. Implement firebase notification functionality
         //TODO:3  Implement send mail functionality to mentionUsers
 

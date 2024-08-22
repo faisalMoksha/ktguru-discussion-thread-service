@@ -9,7 +9,7 @@ export class AnswerService {
         userId,
         file,
     }: RequestAnswer) {
-        return await answerModel.create({
+        let data = await answerModel.create({
             answer,
             questionId: questionId,
             userId: userId,
@@ -17,22 +17,38 @@ export class AnswerService {
             isActive: true,
             ...(file && { file: file }),
         });
+
+        data = await data.populate({
+            path: "userId",
+            model: "UserCache",
+            select: "firstName lastName avatar",
+            foreignField: "userId",
+        });
+
+        return data;
     }
 
     async addComment(comment: string, answerId: string, userId: string) {
-        return await answerModel.findByIdAndUpdate(
-            { _id: answerId },
-            {
-                $push: {
-                    comments: {
-                        comment: comment,
-                        userId: userId,
-                        answerId: answerId,
+        return await answerModel
+            .findByIdAndUpdate(
+                { _id: answerId },
+                {
+                    $push: {
+                        comments: {
+                            comment: comment,
+                            userId: userId,
+                            answerId: answerId,
+                        },
                     },
                 },
-            },
-            { new: true },
-        );
+                { new: true },
+            )
+            .populate({
+                path: "comments.userId",
+                model: "UserCache",
+                select: "firstName lastName avatar",
+                foreignField: "userId",
+            });
     }
 
     async getAnswerForActivity(
@@ -40,7 +56,6 @@ export class AnswerService {
         result: number,
         limit: number,
     ) {
-        //TODO:1. populate user data
         return await answerModel
             .find({
                 projectId: projectId,
@@ -49,15 +64,35 @@ export class AnswerService {
             .skip(result)
             .limit(limit)
             .populate("questionId", "title") // Populate question information for each answer
-            // .populate("userId", "lastName firstName avatar")
-            .populate("comments.answerId", "answerData questionId"); // Populate answer information for each comment
-        // .populate("comments.userId", "lastName firstName avatar");
+            .populate({
+                path: "userId",
+                model: "UserCache",
+                select: "firstName lastName avatar",
+                foreignField: "userId",
+            })
+            .populate("comments.answerId", "answerData questionId") // Populate answer information for each comment
+            .populate({
+                path: "comments.userId",
+                model: "UserCache",
+                select: "firstName lastName avatar",
+                foreignField: "userId",
+            });
     }
 
     async get(questionId: string) {
-        //TODO:1. populate user data
-        return await answerModel.find({ questionId: questionId });
-        // .populate("userId", "lastName firstName avatar")
-        // .populate("comments.userId", "lastName firstName avatar");
+        return await answerModel
+            .find({ questionId: questionId })
+            .populate({
+                path: "userId",
+                model: "UserCache",
+                select: "firstName lastName avatar",
+                foreignField: "userId",
+            })
+            .populate({
+                path: "comments.userId",
+                model: "UserCache",
+                select: "firstName lastName avatar",
+                foreignField: "userId",
+            });
     }
 }

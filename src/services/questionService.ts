@@ -9,7 +9,7 @@ export class QuestionService {
         userId,
         file,
     }: RequestQuestion) {
-        return await questionModel.create({
+        let data = await questionModel.create({
             title,
             description,
             projectId,
@@ -17,6 +17,15 @@ export class QuestionService {
             ...(file && { file: file }),
             isActive: true,
         });
+
+        data = await data.populate({
+            path: "userId",
+            model: "UserCache",
+            select: "firstName lastName avatar",
+            foreignField: "userId",
+        });
+
+        return data;
     }
 
     async getById(id: string) {
@@ -50,12 +59,17 @@ export class QuestionService {
     }
 
     async search(searchTerm: string, projectId: string) {
-        //TODO: 1. populate user data
-
-        return await questionModel.find({
-            projectId: projectId,
-            title: { $regex: searchTerm, $options: "i" },
-        });
+        return await questionModel
+            .find({
+                projectId: projectId,
+                title: { $regex: searchTerm, $options: "i" },
+            })
+            .populate({
+                path: "userId",
+                model: "UserCache",
+                select: "firstName lastName avatar",
+                foreignField: "userId",
+            });
     }
 
     async getQuestionsForActivity(
@@ -63,13 +77,18 @@ export class QuestionService {
         result: number,
         limit: number,
     ) {
-        //TODO:1. populate user data
         return await questionModel
             .find({
                 projectId: projectId,
             })
             .sort({ createdAt: -1 })
             .skip(result)
-            .limit(limit);
+            .limit(limit)
+            .populate({
+                path: "userId",
+                model: "UserCache",
+                select: "firstName lastName avatar",
+                foreignField: "userId",
+            });
     }
 }

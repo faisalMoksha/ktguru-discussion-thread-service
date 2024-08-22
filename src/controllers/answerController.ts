@@ -17,7 +17,6 @@ export class AnswerController {
         //TODO:1. handle token if available
         //TODO:2. Implement firebase notification functionality
         //TODO:3  Implement send mail functionality to mentionUsers
-        //TODO:4  Populate users data
 
         const { answer, projectId, questionId } = req.body;
 
@@ -73,7 +72,6 @@ export class AnswerController {
         //TODO:1. handle token if available
         //TODO:2. Implement firebase notification functionality
         //TODO:3  Implement send mail functionality to mentionUsers
-        //TODO:4  Populate users data
 
         const { comment, answerId } = req.body;
 
