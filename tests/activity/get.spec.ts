@@ -6,6 +6,7 @@ import { Config } from "../../src/config";
 import { Roles } from "../../src/constants";
 import questionModel from "../../src/models/questionModel";
 import answerModel from "../../src/models/answerModel";
+import userCacheModel from "../../src/models/userCacheModel";
 
 describe("GET /activity/:projectId/:skipCount", () => {
     let jwks: ReturnType<typeof createJWKSMock>;
@@ -51,6 +52,14 @@ describe("GET /activity/:projectId/:skipCount", () => {
                         answerId: answer._id,
                     },
                 },
+            });
+
+            await userCacheModel.create({
+                userId: "6512a4c42a6759c77211660e",
+            });
+
+            await userCacheModel.create({
+                userId: "6512a4c42a6759c77211669e",
             });
 
             // Assert

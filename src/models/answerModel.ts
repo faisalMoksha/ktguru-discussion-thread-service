@@ -18,6 +18,11 @@ const answerSchema = new mongoose.Schema<Answer>(
         projectId: {
             type: mongoose.Schema.Types.ObjectId,
         },
+        model_type: {
+            type: String,
+            enum: ["Project", "SubSection"],
+            default: "Project",
+        },
         isActive: {
             type: Boolean,
             default: true,

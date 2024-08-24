@@ -19,6 +19,7 @@ export interface Question {
     file: string;
     userId: mongoose.Types.ObjectId;
     projectId: mongoose.Types.ObjectId;
+    model_type: string;
     summary: {
         para: string;
         file: string;
@@ -42,6 +43,7 @@ export interface Answer {
     questionId: mongoose.Types.ObjectId;
     userId: mongoose.Types.ObjectId;
     projectId: mongoose.Types.ObjectId;
+    model_type: string;
     comments: Comments[];
     isActive: boolean;
     createdAt: Date;
@@ -80,6 +82,7 @@ export interface UserCache {
     firstName: string;
     lastName: string;
     avatar: string;
+    email: string;
 }
 
 export interface MessagePayload {

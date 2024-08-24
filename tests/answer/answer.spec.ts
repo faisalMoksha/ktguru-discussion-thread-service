@@ -6,6 +6,7 @@ import { Config } from "../../src/config";
 import { Roles } from "../../src/constants";
 import questionModel from "../../src/models/questionModel";
 import answerModel from "../../src/models/answerModel";
+import userCacheModel from "../../src/models/userCacheModel";
 
 describe("POST /answer", () => {
     let jwks: ReturnType<typeof createJWKSMock>;
@@ -38,6 +39,10 @@ describe("POST /answer", () => {
                 projectId: "651d94b37c81f740f30892de",
                 // mentionUsers: [],
             };
+
+            await userCacheModel.create({
+                userId: "6512a4c42a6759c77211660e",
+            });
 
             // Assert
             const accessToken = jwks.token({

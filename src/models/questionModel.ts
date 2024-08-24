@@ -17,6 +17,11 @@ const questionSchema = new mongoose.Schema<Question>(
         projectId: {
             type: mongoose.Schema.Types.ObjectId,
         },
+        model_type: {
+            type: String,
+            enum: ["Project", "SubSection"],
+            default: "Project",
+        },
         isClosed: {
             type: Boolean,
             default: false,
