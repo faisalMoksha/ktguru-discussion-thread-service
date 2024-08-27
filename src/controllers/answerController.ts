@@ -6,19 +6,27 @@ import { validationResult } from "express-validator";
 import createHttpError from "http-errors";
 import { AnswerService } from "../services/answerService";
 import { FileStorage } from "../types";
+import { MessageBroker } from "../types/broker";
+import { ApiCallService } from "../services/apiCallService";
+import { Config } from "../config";
+import { KafKaTopic } from "../constants";
+import { QuestionService } from "../services/questionService";
 
 export class AnswerController {
     constructor(
         private answerService: AnswerService,
+        private questionService: QuestionService,
         private storage: FileStorage,
+        private broker: MessageBroker,
+        private apiCallService: ApiCallService,
     ) {}
 
     create = async (req: AuthRequest, res: Response, next: NextFunction) => {
         //TODO:1. handle token if available
         //TODO:2. Implement firebase notification functionality
-        //TODO:3  Implement send mail functionality to mentionUsers
 
-        const { answer, projectId, questionId } = req.body;
+        const { answer, projectId, questionId, mentionUsers, model_type } =
+            req.body;
 
         const result = validationResult(req);
         if (!result.isEmpty()) {
@@ -46,6 +54,8 @@ export class AnswerController {
                 });
             }
 
+            const question = await this.questionService.getById(questionId);
+
             const data = await this.answerService.create({
                 answer,
                 projectId,
@@ -53,6 +63,65 @@ export class AnswerController {
                 userId,
                 file: fileName,
             });
+
+            const mentionUsersArray: [string] = JSON.parse(mentionUsers);
+
+            const askedBy = await this.answerService.getUserInfo(userId);
+
+            const projectData: { data: string; projectName: string } =
+                await this.apiCallService.getResources(projectId, model_type);
+
+            if (!projectData) {
+                const error = createHttpError(400, "Users not found");
+                return next(error);
+            }
+
+            if (mentionUsersArray.length > 0) {
+                for (const userId of mentionUsersArray) {
+                    const getUserData =
+                        await this.answerService.getUserInfo(userId);
+
+                    const token = await this.answerService.generateToken({
+                        userId,
+                        answerId: String(data._id),
+                    });
+
+                    // send kafka message to mail service
+
+                    const brokerMessage = {
+                        event_type: "",
+                        data: {
+                            to: getUserData?.email,
+                            subject: `${askedBy?.firstName} ${askedBy?.lastName} mentioned you in a Answer`,
+                            context: {
+                                name:
+                                    getUserData?.firstName +
+                                    " " +
+                                    getUserData?.lastName,
+                                senderName:
+                                    askedBy?.firstName +
+                                    " " +
+                                    askedBy?.lastName,
+                                answer: data.answer,
+                                title: question?.title,
+                                date: new Date(
+                                    data.createdAt,
+                                ).toLocaleDateString(),
+                                projectName: projectData.projectName,
+                                url: `${Config.FRONTEND_URL}/replay/${token.token}?type=answer`,
+                                websiteUrl: `${Config.FRONTEND_URL}`,
+                            },
+                            template: "answer-notifictaion", // name of the template file i.e verify-email.hbs
+                        },
+                    };
+
+                    await this.broker.sendMessage(
+                        KafKaTopic.Mail,
+                        JSON.stringify(brokerMessage),
+                        getUserData?._id.toString(),
+                    );
+                }
+            }
 
             res.status(201).json({
                 data: data,
@@ -71,9 +140,8 @@ export class AnswerController {
     ) => {
         //TODO:1. handle token if available
         //TODO:2. Implement firebase notification functionality
-        //TODO:3  Implement send mail functionality to mentionUsers
 
-        const { comment, answerId } = req.body;
+        const { comment, answerId, mentionUsers } = req.body;
 
         try {
             if (!req.auth || !req.auth.sub) {
@@ -92,6 +160,78 @@ export class AnswerController {
                 answerId,
                 userId,
             );
+
+            if (!data) {
+                return next(createHttpError(404, "Answer not found"));
+            }
+
+            const question = await this.questionService.getById(
+                String(data.questionId),
+            );
+
+            const mentionUsersArray: [string] = mentionUsers;
+
+            const askedBy = await this.answerService.getUserInfo(userId);
+
+            const projectId = String(data.projectId);
+            const model_type = data.model_type;
+
+            const projectData: { data: string; projectName: string } =
+                await this.apiCallService.getResources(projectId, model_type);
+
+            if (!projectData) {
+                const error = createHttpError(400, "Users not found");
+                return next(error);
+            }
+
+            const newComment = data.comments.slice(-1)[0];
+
+            if (mentionUsersArray.length > 0) {
+                for (const userId of mentionUsersArray) {
+                    const getUserData =
+                        await this.answerService.getUserInfo(userId);
+
+                    const token = await this.answerService.generateToken({
+                        userId,
+                        answerId: String(data._id),
+                    });
+
+                    // send kafka message to mail service
+                    const brokerMessage = {
+                        event_type: "",
+                        data: {
+                            to: getUserData?.email,
+                            subject: `${askedBy?.firstName} ${askedBy?.lastName} mentioned you in a Comment`,
+                            context: {
+                                name:
+                                    getUserData?.firstName +
+                                    " " +
+                                    getUserData?.lastName,
+                                senderName:
+                                    askedBy?.firstName +
+                                    " " +
+                                    askedBy?.lastName,
+                                answer: data.answer,
+                                comment: newComment.comment,
+                                title: question?.title,
+                                date: new Date(
+                                    data.createdAt,
+                                ).toLocaleDateString(),
+                                projectName: projectData.projectName,
+                                url: `${Config.FRONTEND_URL}/replay/${token.token}?type=answer`,
+                                websiteUrl: `${Config.FRONTEND_URL}`,
+                            },
+                            template: "comment-notifictaion", // name of the template file i.e verify-email.hbs
+                        },
+                    };
+
+                    await this.broker.sendMessage(
+                        KafKaTopic.Mail,
+                        JSON.stringify(brokerMessage),
+                        getUserData?._id.toString(),
+                    );
+                }
+            }
 
             res.status(201).json(data);
         } catch (error) {

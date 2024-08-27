@@ -16,4 +16,5 @@ export const ResourcesStatus = {
 
 export const KafKaTopic = {
     User: "user",
+    Mail: "mail",
 } as const;

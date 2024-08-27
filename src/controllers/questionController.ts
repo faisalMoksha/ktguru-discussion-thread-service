@@ -7,20 +7,25 @@ import { QuestionService } from "../services/questionService";
 import { AnswerService } from "../services/answerService";
 import { validationResult } from "express-validator";
 import { FileStorage } from "../types";
+import { Config } from "../config";
+import { MessageBroker } from "../types/broker";
+import { KafKaTopic } from "../constants";
+import { ApiCallService } from "../services/apiCallService";
 
 export class QuestionClass {
     constructor(
         private questionService: QuestionService,
         private answerService: AnswerService,
         private storage: FileStorage,
+        private broker: MessageBroker,
+        private apiCallService: ApiCallService,
     ) {}
 
     create = async (req: AuthRequest, res: Response, next: NextFunction) => {
-        //TODO:1. handle subsection id for questions and answers
-        //TODO:2. Implement firebase notification functionality
-        //TODO:3  Implement send mail functionality to mentionUsers
+        //TODO:1. Implement firebase notification functionality
 
-        const { title, description, projectId } = req.body;
+        const { title, description, projectId, model_type, mentionUsers } =
+            req.body;
 
         const result = validationResult(req);
         if (!result.isEmpty()) {
@@ -55,9 +60,68 @@ export class QuestionClass {
                 title,
                 description,
                 projectId,
+                model_type,
                 userId,
                 file: fileName,
             });
+
+            const mentionUsersArray: [string] = JSON.parse(mentionUsers);
+
+            const askedBy = await this.answerService.getUserInfo(userId);
+
+            const projectData: { data: string; projectName: string } =
+                await this.apiCallService.getResources(projectId, model_type);
+
+            if (!projectData) {
+                const error = createHttpError(400, "Users not found");
+                return next(error);
+            }
+
+            if (mentionUsersArray.length > 0) {
+                for (const userId of mentionUsersArray) {
+                    const getUserData =
+                        await this.answerService.getUserInfo(userId);
+
+                    const token = await this.answerService.generateToken({
+                        userId,
+                        questionId: String(data._id),
+                    });
+
+                    // send kafka message to mail service
+                    const brokerMessage = {
+                        event_type: "",
+                        data: {
+                            to: getUserData?.email,
+                            subject: `${askedBy?.firstName} ${askedBy?.lastName} mentioned you in a question`,
+                            context: {
+                                name:
+                                    getUserData?.firstName +
+                                    " " +
+                                    getUserData?.lastName,
+                                senderName:
+                                    askedBy?.firstName +
+                                    " " +
+                                    askedBy?.lastName,
+                                title: data.title,
+                                desc: data.description,
+                                date: new Date(
+                                    data.createdAt,
+                                ).toLocaleDateString(),
+                                projectName: projectData.projectName,
+                                url: `${Config.FRONTEND_URL}/replay/${token.token}?type=question`,
+                                websiteUrl: `${Config.FRONTEND_URL}`,
+                            },
+                            template: "question-notifictaion", // name of the template file i.e verify-email.hbs
+                        },
+                    };
+
+                    await this.broker.sendMessage(
+                        KafKaTopic.Mail,
+                        JSON.stringify(brokerMessage),
+                        getUserData?._id.toString(),
+                    );
+                }
+            }
 
             res.status(201).json({
                 data: data,

@@ -6,6 +6,7 @@ export class QuestionService {
         title,
         description,
         projectId,
+        model_type,
         userId,
         file,
     }: RequestQuestion) {
@@ -13,6 +14,7 @@ export class QuestionService {
             title,
             description,
             projectId,
+            model_type,
             userId,
             ...(file && { file: file }),
             isActive: true,

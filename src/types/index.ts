@@ -63,6 +63,7 @@ export interface RequestQuestion {
     description: string;
     projectId: string;
     userId: string;
+    model_type: string;
     file?: string | null;
 }
 
@@ -88,4 +89,18 @@ export interface UserCache {
 export interface MessagePayload {
     event_type: string;
     data: UserCache;
+}
+
+export interface TokenTypes {
+    userId: string;
+    token: string;
+    questionId: string;
+    answerId: string;
+    createdAt: Date;
+}
+
+export interface GenerateTokenPayload {
+    userId: string;
+    questionId?: string;
+    answerId?: string;
 }

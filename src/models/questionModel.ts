@@ -19,7 +19,7 @@ const questionSchema = new mongoose.Schema<Question>(
         },
         model_type: {
             type: String,
-            enum: ["Project", "SubSection"],
+            enum: ["Project", "Subsection"],
             default: "Project",
         },
         isClosed: {

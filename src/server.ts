@@ -14,7 +14,9 @@ const startServer = async () => {
         await connectDB();
 
         broker = createMessageBroker();
+
         await broker.connectConsumer();
+        await broker.connectProducer();
 
         await broker.consumeMessage([KafKaTopic.User], false);
 
@@ -22,6 +24,7 @@ const startServer = async () => {
     } catch (error: unknown) {
         if (error instanceof Error) {
             if (broker) {
+                await broker.disconnectProducer();
                 await broker.disconnectConsumer();
             }
 

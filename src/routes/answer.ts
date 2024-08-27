@@ -7,13 +7,26 @@ import answerValidator from "../validators/answer-validator";
 import fileUpload from "express-fileupload";
 import createHttpError from "http-errors";
 import { S3Storage } from "../services/S3Storage";
+import { QuestionService } from "../services/questionService";
+import { ApiCallService } from "../services/apiCallService";
+import { createMessageBroker } from "../utils/factories/brokerFactory";
 
 const router = express.Router();
 
 const answerService = new AnswerService();
+const questionService = new QuestionService();
+const broker = createMessageBroker();
+const apiCallService = new ApiCallService();
+
 const s3Storage = new S3Storage();
 
-const answerController = new AnswerController(answerService, s3Storage);
+const answerController = new AnswerController(
+    answerService,
+    questionService,
+    s3Storage,
+    broker,
+    apiCallService,
+);
 
 /**
  * give answer endpoint

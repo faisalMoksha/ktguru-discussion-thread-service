@@ -20,7 +20,7 @@ const answerSchema = new mongoose.Schema<Answer>(
         },
         model_type: {
             type: String,
-            enum: ["Project", "SubSection"],
+            enum: ["Project", "Subsection"],
             default: "Project",
         },
         isActive: {

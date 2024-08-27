@@ -1,5 +1,8 @@
+import crypto from "crypto";
 import answerModel from "../models/answerModel";
-import { RequestAnswer } from "../types";
+import tokenModel from "../models/tokenModel";
+import userCacheModel from "../models/userCacheModel";
+import { GenerateTokenPayload, RequestAnswer } from "../types";
 
 export class AnswerService {
     async create({
@@ -94,5 +97,22 @@ export class AnswerService {
                 select: "firstName lastName avatar",
                 foreignField: "userId",
             });
+    }
+
+    async getUserInfo(userId: string) {
+        return await userCacheModel.findOne({ userId: userId });
+    }
+
+    async generateToken({
+        userId,
+        questionId,
+        answerId,
+    }: GenerateTokenPayload) {
+        return await tokenModel.create({
+            userId: userId,
+            questionId: questionId,
+            token: crypto.randomBytes(32).toString("hex"),
+            answerId: answerId,
+        });
     }
 }
