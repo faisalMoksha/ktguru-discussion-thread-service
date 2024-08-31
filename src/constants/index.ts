@@ -18,3 +18,8 @@ export const KafKaTopic = {
     User: "user",
     Mail: "mail",
 } as const;
+
+export enum MailEvents {
+    SEND_MAIL = "SEND_MAIL",
+    SEND_FIREBASE_NOTIFICATION = "SEND_FIREBASE_NOTIFICATION",
+}

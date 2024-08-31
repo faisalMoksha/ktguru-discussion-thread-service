@@ -10,6 +10,7 @@ import { S3Storage } from "../services/S3Storage";
 import createHttpError from "http-errors";
 import { createMessageBroker } from "../utils/factories/brokerFactory";
 import { ApiCallService } from "../services/apiCallService";
+import { TokenService } from "../services/tokenService";
 
 const router = express.Router();
 
@@ -17,6 +18,7 @@ const questionService = new QuestionService();
 const answerService = new AnswerService();
 const broker = createMessageBroker();
 const apiCallService = new ApiCallService();
+const tokenService = new TokenService();
 
 const s3Storage = new S3Storage();
 
@@ -26,6 +28,7 @@ const questionClass = new QuestionClass(
     s3Storage,
     broker,
     apiCallService,
+    tokenService,
 );
 
 /**

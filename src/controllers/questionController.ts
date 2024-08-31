@@ -6,11 +6,12 @@ import { UploadedFile } from "express-fileupload";
 import { QuestionService } from "../services/questionService";
 import { AnswerService } from "../services/answerService";
 import { validationResult } from "express-validator";
-import { FileStorage } from "../types";
+import { FileStorage, Resources } from "../types";
 import { Config } from "../config";
 import { MessageBroker } from "../types/broker";
-import { KafKaTopic } from "../constants";
+import { KafKaTopic, MailEvents } from "../constants";
 import { ApiCallService } from "../services/apiCallService";
+import { TokenService } from "../services/tokenService";
 
 export class QuestionClass {
     constructor(
@@ -19,11 +20,10 @@ export class QuestionClass {
         private storage: FileStorage,
         private broker: MessageBroker,
         private apiCallService: ApiCallService,
+        private tokenService: TokenService,
     ) {}
 
     create = async (req: AuthRequest, res: Response, next: NextFunction) => {
-        //TODO:1. Implement firebase notification functionality
-
         const { title, description, projectId, model_type, mentionUsers } =
             req.body;
 
@@ -69,7 +69,7 @@ export class QuestionClass {
 
             const askedBy = await this.answerService.getUserInfo(userId);
 
-            const projectData: { data: string; projectName: string } =
+            const projectData: { data: Resources[]; projectName: string } =
                 await this.apiCallService.getResources(projectId, model_type);
 
             if (!projectData) {
@@ -82,14 +82,15 @@ export class QuestionClass {
                     const getUserData =
                         await this.answerService.getUserInfo(userId);
 
-                    const token = await this.answerService.generateToken({
+                    const token = await this.tokenService.create({
                         userId,
                         questionId: String(data._id),
+                        projectId: projectId,
                     });
 
                     // send kafka message to mail service
                     const brokerMessage = {
-                        event_type: "",
+                        event_type: MailEvents.SEND_MAIL,
                         data: {
                             to: getUserData?.email,
                             subject: `${askedBy?.firstName} ${askedBy?.lastName} mentioned you in a question`,
@@ -108,7 +109,7 @@ export class QuestionClass {
                                     data.createdAt,
                                 ).toLocaleDateString(),
                                 projectName: projectData.projectName,
-                                url: `${Config.FRONTEND_URL}/replay/${token.token}?type=question`,
+                                url: `${Config.FRONTEND_URL}/replay/${token.token}?type=answer`,
                                 websiteUrl: `${Config.FRONTEND_URL}`,
                             },
                             template: "question-notifictaion", // name of the template file i.e verify-email.hbs
@@ -121,6 +122,23 @@ export class QuestionClass {
                         getUserData?._id.toString(),
                     );
                 }
+            }
+
+            if (Config.NODE_ENV != "test") {
+                const brokerMessage = {
+                    event_type: MailEvents.SEND_FIREBASE_NOTIFICATION,
+                    data: {
+                        title: `New Question Asked By: ${askedBy?.firstName} ${askedBy?.lastName}`,
+                        body: `${title}`,
+                        to: projectData.data,
+                    },
+                };
+
+                await this.broker.sendMessage(
+                    KafKaTopic.Mail,
+                    JSON.stringify(brokerMessage),
+                    askedBy?.userId.toString(),
+                );
             }
 
             res.status(201).json({

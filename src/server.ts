@@ -27,7 +27,6 @@ const startServer = async () => {
                 await broker.disconnectProducer();
                 await broker.disconnectConsumer();
             }
-
             logger.error(error.message);
             process.exit(1);
         }

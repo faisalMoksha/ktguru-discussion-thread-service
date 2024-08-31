@@ -15,6 +15,9 @@ const tokenSchema = new mongoose.Schema<TokenTypes>(
         answerId: {
             type: String,
         },
+        projectId: {
+            type: String,
+        },
         createdAt: {
             type: Date,
             default: Date.now,

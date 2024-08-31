@@ -96,6 +96,7 @@ export interface TokenTypes {
     token: string;
     questionId: string;
     answerId: string;
+    projectId: string;
     createdAt: Date;
 }
 
@@ -103,4 +104,13 @@ export interface GenerateTokenPayload {
     userId: string;
     questionId?: string;
     answerId?: string;
+    projectId?: string;
+}
+
+export interface Resources {
+    userId: mongoose.Types.ObjectId;
+    userRole: string;
+    isApproved: boolean;
+    status: string;
+    createdAt: Date;
 }

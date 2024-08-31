@@ -1,8 +1,7 @@
-import crypto from "crypto";
 import answerModel from "../models/answerModel";
-import tokenModel from "../models/tokenModel";
 import userCacheModel from "../models/userCacheModel";
-import { GenerateTokenPayload, RequestAnswer } from "../types";
+import logger from "../config/logger";
+import { RequestAnswer } from "../types";
 
 export class AnswerService {
     async create({
@@ -103,16 +102,41 @@ export class AnswerService {
         return await userCacheModel.findOne({ userId: userId });
     }
 
-    async generateToken({
-        userId,
-        questionId,
+    async savedReply({
+        type,
         answerId,
-    }: GenerateTokenPayload) {
-        return await tokenModel.create({
-            userId: userId,
-            questionId: questionId,
-            token: crypto.randomBytes(32).toString("hex"),
-            answerId: answerId,
-        });
+        questionId,
+        reply,
+        fileName,
+        userId,
+        projectId,
+    }: any) {
+        switch (type) {
+            case "answer":
+                return await answerModel.create({
+                    answer: reply,
+                    questionId: questionId,
+                    userId: userId,
+                    projectId: projectId,
+                    isActive: true,
+                    ...(fileName && { file: fileName }),
+                });
+            case "comment":
+                return await answerModel.findByIdAndUpdate(
+                    { _id: answerId },
+                    {
+                        $push: {
+                            comments: {
+                                comment: reply,
+                                userId: userId,
+                                answerId: answerId,
+                            },
+                        },
+                    },
+                );
+
+            default:
+                logger.info("Doing nothing...");
+        }
     }
 }
