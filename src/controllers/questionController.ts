@@ -65,7 +65,9 @@ export class QuestionClass {
                 file: fileName,
             });
 
-            const mentionUsersArray: [string] = JSON.parse(mentionUsers);
+            const mentionUsersArray: [string] = mentionUsers
+                ? JSON.parse(mentionUsers)
+                : [];
 
             const askedBy = await this.answerService.getUserInfo(userId);
 

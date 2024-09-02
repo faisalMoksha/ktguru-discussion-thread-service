@@ -1,11 +1,15 @@
 import request from "supertest";
 import mongoose from "mongoose";
 import createJWKSMock from "mock-jwks";
+import axios from "axios";
 import app from "../../src/app";
 import { Config } from "../../src/config";
 import { Roles } from "../../src/constants";
 import answerModel from "../../src/models/answerModel";
 import userCacheModel from "../../src/models/userCacheModel";
+
+jest.mock("axios");
+const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 describe("POST /answer/comment", () => {
     let jwks: ReturnType<typeof createJWKSMock>;
@@ -49,6 +53,19 @@ describe("POST /answer/comment", () => {
                 userId: "6512a4c42a6759c77211660e",
             });
 
+            mockedAxios.post.mockResolvedValueOnce({
+                data: {
+                    projectName: "project-name",
+                    data: {
+                        userId: "6512a4c42a6759c77211660e",
+                        userRole: "string",
+                        isApproved: true,
+                        status: "string",
+                        createdAt: new Date(),
+                    },
+                },
+            });
+
             const response = await request(app)
                 .post("/answer/comment")
                 .set("Cookie", [`accessToken=${accessToken}`])
@@ -80,6 +97,19 @@ describe("POST /answer/comment", () => {
             const accessToken = jwks.token({
                 sub: "6512a4c42a6759c77211660e",
                 role: Roles.PROJECT_ADMIN,
+            });
+
+            mockedAxios.post.mockResolvedValueOnce({
+                data: {
+                    projectName: "project-name",
+                    data: {
+                        userId: "6512a4c42a6759c77211660e",
+                        userRole: "string",
+                        isApproved: true,
+                        status: "string",
+                        createdAt: new Date(),
+                    },
+                },
             });
 
             await request(app)

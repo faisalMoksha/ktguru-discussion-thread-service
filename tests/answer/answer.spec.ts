@@ -7,6 +7,10 @@ import { Roles } from "../../src/constants";
 import questionModel from "../../src/models/questionModel";
 import answerModel from "../../src/models/answerModel";
 import userCacheModel from "../../src/models/userCacheModel";
+import axios from "axios";
+
+jest.mock("axios");
+const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 describe("POST /answer", () => {
     let jwks: ReturnType<typeof createJWKSMock>;
@@ -42,6 +46,19 @@ describe("POST /answer", () => {
 
             await userCacheModel.create({
                 userId: "6512a4c42a6759c77211660e",
+            });
+
+            mockedAxios.post.mockResolvedValueOnce({
+                data: {
+                    projectName: "project-name",
+                    data: {
+                        userId: "6512a4c42a6759c77211660e",
+                        userRole: "string",
+                        isApproved: true,
+                        status: "string",
+                        createdAt: new Date(),
+                    },
+                },
             });
 
             // Assert

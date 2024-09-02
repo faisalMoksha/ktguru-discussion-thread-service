@@ -63,7 +63,9 @@ export class AnswerController {
                 file: fileName,
             });
 
-            const mentionUsersArray: [string] = JSON.parse(mentionUsers);
+            const mentionUsersArray: [string] = mentionUsers
+                ? JSON.parse(mentionUsers)
+                : [];
 
             const user = await this.answerService.getUserInfo(userId);
 
@@ -182,7 +184,9 @@ export class AnswerController {
                 String(data.questionId),
             );
 
-            const mentionUsersArray: [string] = mentionUsers;
+            const mentionUsersArray: [string] = mentionUsers
+                ? mentionUsers
+                : [];
 
             const user = await this.answerService.getUserInfo(userId);
 
