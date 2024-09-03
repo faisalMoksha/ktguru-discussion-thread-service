@@ -65,8 +65,6 @@ describe("POST /question", () => {
                 .set("Cookie", [`accessToken=${accessToken}`])
                 .send(data);
 
-            console.log("response.body:", response.body);
-
             // Assert
             expect(response.statusCode).toBe(201);
             expect(response.headers["content-type"]).toEqual(

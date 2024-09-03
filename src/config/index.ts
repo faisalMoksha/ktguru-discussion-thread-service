@@ -19,6 +19,8 @@ const {
     S3_REGION,
     S3_BUCKET,
     KAFKA_BROKER,
+    KAFKA_SASL_USER_NAME,
+    KAFKA_SASL_PASSWORD,
     PROJECT_SERVICE_URI,
 } = process.env;
 
@@ -37,4 +39,6 @@ export const Config = {
     S3_BUCKET,
     KAFKA_BROKER,
     PROJECT_SERVICE_URI,
+    KAFKA_SASL_USER_NAME,
+    KAFKA_SASL_PASSWORD,
 };
