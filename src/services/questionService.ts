@@ -43,7 +43,13 @@ export class QuestionService {
             .find({ projectId, isClosed })
             .sort({ createdAt: -1 })
             .skip(result)
-            .limit(limit);
+            .limit(limit)
+            .populate({
+                path: "userId",
+                model: "UserCache",
+                select: "firstName lastName avatar",
+                foreignField: "userId",
+            });
     }
 
     async close(id: string, para: string, fileName: string | null) {

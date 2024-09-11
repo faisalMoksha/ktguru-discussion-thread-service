@@ -18,4 +18,9 @@ export default checkSchema({
         isString: true,
         errorMessage: "Project Id is required!",
     },
+    model_type: {
+        trim: true,
+        isString: true,
+        errorMessage: "Model Type is required!",
+    },
 });
