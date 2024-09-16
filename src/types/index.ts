@@ -17,12 +17,14 @@ export interface Question {
     title: string;
     description: string;
     file: string;
+    fileType: string;
     userId: mongoose.Types.ObjectId;
     projectId: mongoose.Types.ObjectId;
     model_type: string;
     summary: {
         para: string;
         file: string;
+        fileType: string;
     };
     isClosed: boolean;
     isActive: boolean;
@@ -40,6 +42,7 @@ export interface Comments {
 export interface Answer {
     answer: string;
     file: string;
+    fileType: string;
     questionId: mongoose.Types.ObjectId;
     userId: mongoose.Types.ObjectId;
     projectId: mongoose.Types.ObjectId;
@@ -56,6 +59,7 @@ export interface RequestAnswer {
     questionId: string;
     userId: string;
     file?: string | null;
+    fileType?: string | null;
 }
 
 export interface RequestQuestion {
@@ -65,6 +69,7 @@ export interface RequestQuestion {
     userId: string;
     model_type: string;
     file?: string | null;
+    fileType?: string | null;
 }
 
 export interface FileData {

@@ -9,6 +9,7 @@ export class QuestionService {
         model_type,
         userId,
         file,
+        fileType,
     }: RequestQuestion) {
         let data = await questionModel.create({
             title,
@@ -17,6 +18,7 @@ export class QuestionService {
             model_type,
             userId,
             ...(file && { file: file }),
+            ...(fileType && { fileType: fileType }),
             isActive: true,
         });
 
@@ -31,7 +33,12 @@ export class QuestionService {
     }
 
     async getById(id: string) {
-        return await questionModel.findById(id);
+        return await questionModel.findById(id).populate({
+            path: "userId",
+            model: "UserCache",
+            select: "firstName lastName avatar",
+            foreignField: "userId",
+        });
     }
 
     async getAll(projectId: string, isClosed: boolean, skipCount: number) {
@@ -52,13 +59,19 @@ export class QuestionService {
             });
     }
 
-    async close(id: string, para: string, fileName: string | null) {
+    async close(
+        id: string,
+        para: string,
+        fileName: string | null,
+        fileType: string | null,
+    ) {
         return await questionModel.findByIdAndUpdate(
             { _id: id },
             {
                 summary: {
                     para,
                     ...(fileName && { file: fileName }),
+                    ...(fileType && { fileType: fileType }),
                 },
                 isClosed: true,
             },

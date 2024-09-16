@@ -42,10 +42,13 @@ export class AnswerController {
             const userId = req.auth.sub;
 
             let fileName = null;
+            let fileType = "";
             if (req.files) {
                 const file = req.files.file as UploadedFile;
 
                 fileName = uuidv4();
+                // Extract file type from mimetype
+                fileType = file.mimetype;
 
                 await this.storage.upload({
                     filename: fileName,
@@ -61,6 +64,7 @@ export class AnswerController {
                 questionId,
                 userId,
                 file: fileName,
+                fileType,
             });
 
             const mentionUsersArray: [string] = mentionUsers
@@ -141,8 +145,10 @@ export class AnswerController {
                 );
             }
 
+            const answerData = await this.answerService.get(questionId);
+
             res.status(201).json({
-                data: data,
+                data: { question: question, answer: answerData },
                 message: "",
                 success: true,
             });
@@ -265,7 +271,15 @@ export class AnswerController {
                 );
             }
 
-            res.status(201).json(data);
+            const answerData = await this.answerService.get(
+                String(data.questionId),
+            );
+
+            res.status(201).json({
+                data: { question: question, answer: answerData },
+                message: "",
+                success: true,
+            });
         } catch (error) {
             return next(error);
         }
@@ -287,10 +301,13 @@ export class AnswerController {
             }
 
             let fileName = null;
+            let fileType = "";
             if (req.files) {
                 const file = req.files.file as UploadedFile;
 
                 fileName = uuidv4();
+                // Extract file type from mimetype
+                fileType = file.mimetype;
 
                 await this.storage.upload({
                     filename: fileName,
@@ -304,6 +321,7 @@ export class AnswerController {
                 questionId: tokenData.questionId,
                 reply,
                 fileName,
+                fileType,
                 projectId: tokenData.projectId,
             });
 

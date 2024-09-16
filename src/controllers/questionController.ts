@@ -45,8 +45,12 @@ export class QuestionClass {
             const userId = req.auth.sub;
 
             let fileName = null;
+            let fileType = "";
             if (req.files) {
                 const file = req.files.file as UploadedFile;
+
+                // Extract file type from mimetype
+                fileType = file.mimetype;
 
                 fileName = uuidv4();
 
@@ -63,6 +67,7 @@ export class QuestionClass {
                 model_type,
                 userId,
                 file: fileName,
+                fileType: fileType,
             });
 
             const mentionUsersArray: [string] = mentionUsers
@@ -183,10 +188,13 @@ export class QuestionClass {
         const { para, id } = req.body;
 
         let fileName = null;
+        let fileType = "";
         if (req.files) {
             const file = req.files.file as UploadedFile;
 
             fileName = uuidv4();
+            // Extract file type from mimetype
+            fileType = file.mimetype;
 
             await this.storage.upload({
                 filename: fileName,
@@ -194,7 +202,12 @@ export class QuestionClass {
             });
         }
 
-        const question = await this.questionService.close(id, para, fileName);
+        const question = await this.questionService.close(
+            id,
+            para,
+            fileName,
+            fileType,
+        );
 
         const answer = await this.answerService.get(id);
 

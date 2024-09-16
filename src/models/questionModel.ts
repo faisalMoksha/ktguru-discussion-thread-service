@@ -38,6 +38,9 @@ const questionSchema = new mongoose.Schema<Question>(
                 }
             },
         },
+        fileType: {
+            type: String,
+        },
         summary: {
             para: String,
             file: {
@@ -47,6 +50,9 @@ const questionSchema = new mongoose.Schema<Question>(
                         return `https://${Config.S3_BUCKET}.s3.${Config.S3_REGION}.amazonaws.com/${file}`;
                     }
                 },
+            },
+            fileType: {
+                type: String,
             },
         },
     },

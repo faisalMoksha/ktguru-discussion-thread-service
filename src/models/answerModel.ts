@@ -35,6 +35,9 @@ const answerSchema = new mongoose.Schema<Answer>(
                 }
             },
         },
+        fileType: {
+            type: String,
+        },
         comments: [
             {
                 comment: {

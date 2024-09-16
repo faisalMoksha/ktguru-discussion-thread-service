@@ -10,6 +10,7 @@ export class AnswerService {
         questionId,
         userId,
         file,
+        fileType,
     }: RequestAnswer) {
         let data = await answerModel.create({
             answer,
@@ -18,6 +19,7 @@ export class AnswerService {
             projectId: projectId,
             isActive: true,
             ...(file && { file: file }),
+            ...(fileType && { fileType: fileType }),
         });
 
         data = await data.populate({
@@ -108,6 +110,7 @@ export class AnswerService {
         questionId,
         reply,
         fileName,
+        fileType,
         userId,
         projectId,
     }: any) {
@@ -120,6 +123,7 @@ export class AnswerService {
                     projectId: projectId,
                     isActive: true,
                     ...(fileName && { file: fileName }),
+                    ...(fileType && { fileType: fileType }),
                 });
             case "comment":
                 return await answerModel.findByIdAndUpdate(
