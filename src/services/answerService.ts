@@ -74,7 +74,7 @@ export class AnswerService {
                 select: "firstName lastName avatar",
                 foreignField: "userId",
             })
-            .populate("comments.answerId", "answerData questionId") // Populate answer information for each comment
+            .populate("comments.answerId", "answer questionId") // Populate answer information for each comment
             .populate({
                 path: "comments.userId",
                 model: "UserCache",

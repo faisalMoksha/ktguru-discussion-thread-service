@@ -48,6 +48,7 @@ const answerSchema = new mongoose.Schema<Answer>(
                 },
                 answerId: {
                     type: mongoose.Schema.Types.ObjectId,
+                    ref: "Answer",
                 },
                 createdAt: {
                     type: Date,

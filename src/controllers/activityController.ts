@@ -12,7 +12,7 @@ export class ActivityController {
     ) {}
 
     get = async (req: Request, res: Response, next: NextFunction) => {
-        const limit = 3;
+        const limit = 10;
         const skip = req.params.skipCount;
         const result = limit * Number(skip);
 
