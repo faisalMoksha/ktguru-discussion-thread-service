@@ -116,7 +116,7 @@ export class QuestionClass {
                                     data.createdAt,
                                 ).toLocaleDateString(),
                                 projectName: projectData.projectName,
-                                url: `${Config.FRONTEND_URL}/replay/${token.token}?type=answer`,
+                                url: `${Config.FRONTEND_URL}/reply/${token.token}?type=answer`,
                                 websiteUrl: `${Config.FRONTEND_URL}`,
                             },
                             template: "question-notifictaion", // name of the template file i.e verify-email.hbs

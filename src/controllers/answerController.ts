@@ -112,7 +112,7 @@ export class AnswerController {
                                         data.createdAt,
                                     ).toLocaleDateString(),
                                     projectName: projectData.projectName,
-                                    url: `${Config.FRONTEND_URL}/replay/${token.token}?type=comment`,
+                                    url: `${Config.FRONTEND_URL}/reply/${token.token}?type=comment`,
                                     websiteUrl: `${Config.FRONTEND_URL}`,
                                 },
                                 template: "answer-notifictaion", // name of the template file i.e verify-email.hbs
@@ -239,7 +239,7 @@ export class AnswerController {
                                     data.createdAt,
                                 ).toLocaleDateString(),
                                 projectName: projectData.projectName,
-                                url: `${Config.FRONTEND_URL}/replay/${token.token}?type=comment`,
+                                url: `${Config.FRONTEND_URL}/reply/${token.token}?type=comment`,
                                 websiteUrl: `${Config.FRONTEND_URL}`,
                             },
                             template: "comment-notifictaion", // name of the template file i.e verify-email.hbs
@@ -291,9 +291,16 @@ export class AnswerController {
         next: NextFunction,
     ) => {
         const { type, reply, token } = req.body;
+        // eslint-disable-next-line no-console
+        console.log(token, "first token data");
+
+        // eslint-disable-next-line no-console
+        console.log(req.body, "req body");
 
         try {
             const tokenData = await this.tokenService.get(token);
+            // eslint-disable-next-line no-console
+            console.log(tokenData, "token data");
 
             if (!tokenData) {
                 const error = createHttpError(404, "Invalid token");
@@ -319,6 +326,7 @@ export class AnswerController {
                 type,
                 answerId: tokenData.answerId,
                 questionId: tokenData.questionId,
+                userId: tokenData.userId,
                 reply,
                 fileName,
                 fileType,

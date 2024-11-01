@@ -59,8 +59,19 @@ router.post(
 );
 
 /**
- * replay from mail endpoint
+ * reply from mail endpoint
  */
-router.post("/reply", asyncWrapper(answerController.savedReply));
+router.post(
+    "/reply",
+    fileUpload({
+        limits: { fileSize: 500 * 1024 }, //500kb
+        abortOnLimit: true,
+        limitHandler: (req, res, next) => {
+            const error = createHttpError(400, "File size exceeded the limit");
+            next(error);
+        },
+    }),
+    asyncWrapper(answerController.savedReply),
+);
 
 export default router;
